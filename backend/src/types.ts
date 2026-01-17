@@ -4,6 +4,9 @@
 export type Bindings = {
   DB: D1Database;
   ENVIRONMENT: string;
+  JWT_SECRET?: string;
+  JWT_ACCESS_EXPIRY?: string;
+  JWT_REFRESH_EXPIRY?: string;
 };
 
 /**
