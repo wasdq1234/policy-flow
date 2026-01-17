@@ -1,0 +1,32 @@
+{
+  "name": "policy-flow-backend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "build": "tsc --noEmit",
+    "lint": "eslint src --ext .ts",
+    "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "db:generate": "drizzle-kit generate:sqlite",
+    "db:migrate": "wrangler d1 execute policy-db --local --file=./drizzle/migrations/0001_initial.sql",
+    "db:migrate:remote": "wrangler d1 execute policy-db --remote --file=./drizzle/migrations/0001_initial.sql"
+  },
+  "dependencies": {
+    "hono": "^4.0.0",
+    "drizzle-orm": "^0.29.3",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240117.0",
+    "@types/node": "^20.11.5",
+    "drizzle-kit": "^0.20.13",
+    "miniflare": "^3.20240117.0",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.1",
+    "wrangler": "^3.24.0"
+  }
+}
