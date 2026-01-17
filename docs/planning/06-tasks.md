@@ -391,7 +391,7 @@ cd ../policyflow-phase1-profile-fe
 
 ## M2: FEAT-1 정책 캘린더
 
-### [ ] Phase 2, T2.1: 정책 API (목록/상세) RED→GREEN
+### [x] Phase 2, T2.1: 정책 API (목록/상세) RED→GREEN
 
 **담당**: backend-specialist
 
