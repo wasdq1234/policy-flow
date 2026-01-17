@@ -8,6 +8,7 @@ import authRoutes from './auth';
 import usersRoutes from './users';
 import policiesRoutes from './policies';
 import bookmarksRoutes from './bookmarks';
+import postsRoutes from './posts';
 
 const v1 = new Hono<Env>();
 
@@ -40,7 +41,7 @@ v1.route('/policies', policiesRoutes);
 // Phase 3: 북마크 라우트 마운트
 v1.route('/bookmarks', bookmarksRoutes);
 
-// TODO: 추가 라우트
-// v1.route('/posts', postsRoutes);
+// Phase 4: 게시글 라우트 마운트
+v1.route('/posts', postsRoutes);
 
 export default v1;
