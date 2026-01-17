@@ -6,6 +6,7 @@ import { Hono } from 'hono';
 import type { Env } from '../../types';
 import authRoutes from './auth';
 import usersRoutes from './users';
+import policiesRoutes from './policies';
 
 const v1 = new Hono<Env>();
 
@@ -32,8 +33,10 @@ v1.get('/', (c) => {
 v1.route('/auth', authRoutes);
 v1.route('/users', usersRoutes);
 
+// Phase 2: 정책 라우트 마운트
+v1.route('/policies', policiesRoutes);
+
 // TODO: 추가 라우트
-// v1.route('/policies', policiesRoutes);
 // v1.route('/bookmarks', bookmarksRoutes);
 // v1.route('/posts', postsRoutes);
 
