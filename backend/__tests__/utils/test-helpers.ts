@@ -225,6 +225,11 @@ export function createMockDb(): D1Database {
               if (q.includes('where')) {
                 let paramIndex = 0;
 
+                if (q.includes('post_id =')) {
+                  const postId = params[paramIndex++];
+                  results = results.filter((r: any) => r.post_id === postId);
+                }
+
                 if (q.includes('user_id')) {
                   const userId = params[paramIndex++];
                   results = results.filter((r: any) => r.user_id === userId);
@@ -251,6 +256,11 @@ export function createMockDb(): D1Database {
                     });
                   });
                 }
+
+                // is_deleted 필터
+                if (q.includes('is_deleted')) {
+                  results = results.filter((r: any) => r.is_deleted === 0);
+                }
               }
 
               // COUNT 결과 반환
@@ -273,6 +283,15 @@ export function createMockDb(): D1Database {
                   r.user_id === userId && r.policy_id === policyId
                 );
               }
+              // user_id + created_at 복합 조건 (댓글 생성 후 조회) - WHERE 절에 둘 다 있어야 함
+              if (q.match(/where.*user_id\s*=.*created_at\s*=/s) || q.match(/where.*created_at\s*=.*user_id\s*=/s)) {
+                const userId = params[paramIndex++];
+                const createdAt = params[paramIndex++];
+                whereParamCount += 2;
+                results = results.filter((r: any) =>
+                  r.user_id === userId && r.created_at === createdAt
+                );
+              }
               // user_id + post_id 복합 조건 (좋아요 확인)
               else if (q.includes('user_id') && q.includes('post_id')) {
                 const userId = params[paramIndex++];
@@ -280,6 +299,15 @@ export function createMockDb(): D1Database {
                 whereParamCount += 2;
                 results = results.filter((r: any) =>
                   r.user_id === userId && r.post_id === postId
+                );
+              }
+              // user_id + comment_id 복합 조건 (댓글 좋아요 확인)
+              else if (q.includes('user_id') && q.includes('comment_id')) {
+                const userId = params[paramIndex++];
+                const commentId = params[paramIndex++];
+                whereParamCount += 2;
+                results = results.filter((r: any) =>
+                  r.user_id === userId && r.comment_id === commentId
                 );
               }
               // user_id + title 복합 조건 (게시글 생성 후 조회)
@@ -301,14 +329,20 @@ export function createMockDb(): D1Database {
                 whereParamCount++;
                 results = results.filter((r: any) => r.policy_id === policyId);
               }
-              // post_id만 있는 경우
-              else if (q.includes('post_id') && !q.includes('user_id')) {
+              // post_id만 있는 경우 (WHERE 절에서, = 기호로 확인)
+              else if (q.includes('where') && q.includes('post_id =') && !q.includes('user_id =') && !q.includes('created_at =') && !q.includes('policy_id =')) {
                 const postId = params[paramIndex++];
                 whereParamCount++;
                 results = results.filter((r: any) => r.post_id === postId);
               }
-              // id 필터
-              else if (q.includes('id =') || q.includes('id=')) {
+              // comments 테이블에서 id만 있는 경우 (SELECT ... WHERE id = ?)
+              else if (tableName === 'comments' && q.match(/where\s+id\s*=/i) && !q.includes('user_id =') && !q.includes('post_id =')) {
+                const id = params[paramIndex++];
+                whereParamCount++;
+                results = results.filter((r: any) => r.id === id);
+              }
+              // id 필터 (일반적인 경우, comments 외)
+              else if (tableName !== 'comments' && (q.includes('id =') || q.includes('id=')) && !q.includes('user_id') && !q.includes('post_id') && !q.includes('policy_id')) {
                 const id = params[paramIndex++];
                 whereParamCount++;
                 results = results.filter((r: any) => r.id === id);
@@ -464,9 +498,17 @@ export function createMockDb(): D1Database {
                         const baseCol = value.split('-')[0].trim().replace(/["']/g, '');
                         const decrement = parseInt(value.split('-')[1].trim(), 10);
                         table[i][col] = Math.max(0, (table[i][col] || 0) - decrement);
-                      } else {
-                        // 일반 값 할당
+                      } else if (value === '?' || value === ' ?') {
+                        // 플레이스홀더 - params에서 가져오기
                         table[i][col] = params[paramIdx++];
+                      } else {
+                        // 리터럴 값 (1, 0, 'string' 등)
+                        const literalValue = value.replace(/['"]/g, '');
+                        if (!isNaN(Number(literalValue))) {
+                          table[i][col] = Number(literalValue);
+                        } else {
+                          table[i][col] = literalValue;
+                        }
                       }
                     });
                   }
@@ -499,6 +541,14 @@ export function createMockDb(): D1Database {
                 const postId = params[1];
                 table = table.filter((r: any) =>
                   !(r.user_id === userId && r.post_id === postId)
+                );
+              }
+              // user_id + comment_id 복합 조건 (댓글 좋아요)
+              else if (q.includes('user_id') && q.includes('comment_id')) {
+                const userId = params[0];
+                const commentId = params[1];
+                table = table.filter((r: any) =>
+                  !(r.user_id === userId && r.comment_id === commentId)
                 );
               }
               // id만 있는 경우
