@@ -78,6 +78,8 @@ export function createMockDb(): D1Database {
     inMemoryStore.set('bookmarks', []);
     inMemoryStore.set('posts', []);
     inMemoryStore.set('comments', []);
+    inMemoryStore.set('post_likes', []);
+    inMemoryStore.set('comment_likes', []);
   }
 
   const db: any = {
@@ -262,8 +264,8 @@ export function createMockDb(): D1Database {
             if (q.includes('where')) {
               let paramIndex = 0;
 
-              // user_id + policy_id 복합 조건 (북마크)
-              if (q.includes('user_id') && q.includes('policy_id')) {
+              // user_id + policy_id 복합 조건 (북마크) - 정확한 매칭
+              if (tableName === 'bookmarks' && q.includes('user_id') && q.includes('policy_id')) {
                 const userId = params[paramIndex++];
                 const policyId = params[paramIndex++];
                 whereParamCount += 2;
@@ -271,23 +273,57 @@ export function createMockDb(): D1Database {
                   r.user_id === userId && r.policy_id === policyId
                 );
               }
+              // user_id + post_id 복합 조건 (좋아요 확인)
+              else if (q.includes('user_id') && q.includes('post_id')) {
+                const userId = params[paramIndex++];
+                const postId = params[paramIndex++];
+                whereParamCount += 2;
+                results = results.filter((r: any) =>
+                  r.user_id === userId && r.post_id === postId
+                );
+              }
+              // user_id + title 복합 조건 (게시글 생성 후 조회)
+              else if (q.includes('user_id') && q.includes('title') && !q.includes('policy_id') && !q.includes('post_id')) {
+                const userId = params[paramIndex++];
+                const title = params[paramIndex++];
+                whereParamCount += 2;
+                results = results.filter((r: any) => r.user_id === userId && r.title === title);
+              }
               // user_id만 있는 경우
-              else if (q.includes('user_id')) {
+              else if (q.includes('user_id') && !q.includes('policy_id') && !q.includes('post_id') && !q.includes('title')) {
                 const userId = params[paramIndex++];
                 whereParamCount++;
                 results = results.filter((r: any) => r.user_id === userId);
               }
               // policy_id만 있는 경우
-              else if (q.includes('policy_id')) {
+              else if (q.includes('policy_id') && !q.includes('user_id')) {
                 const policyId = params[paramIndex++];
                 whereParamCount++;
                 results = results.filter((r: any) => r.policy_id === policyId);
+              }
+              // post_id만 있는 경우
+              else if (q.includes('post_id') && !q.includes('user_id')) {
+                const postId = params[paramIndex++];
+                whereParamCount++;
+                results = results.filter((r: any) => r.post_id === postId);
               }
               // id 필터
               else if (q.includes('id =') || q.includes('id=')) {
                 const id = params[paramIndex++];
                 whereParamCount++;
                 results = results.filter((r: any) => r.id === id);
+              }
+
+              // is_deleted 필터 (posts 테이블) - 파라미터 없음
+              if (q.includes('is_deleted')) {
+                results = results.filter((r: any) => r.is_deleted === 0);
+              }
+
+              // post_type 필터
+              if (q.includes('post_type')) {
+                const postType = params[paramIndex++];
+                whereParamCount++;
+                results = results.filter((r: any) => r.post_type === postType);
               }
 
               // provider 필터
@@ -349,6 +385,15 @@ export function createMockDb(): D1Database {
               offset = limitOffsetParams[0] || 0;
             }
 
+            // ORDER BY 처리
+            if (q.includes('order by')) {
+              if (q.includes('created_at desc') || q.includes('created_at  desc')) {
+                results.sort((a: any, b: any) => (b.created_at || 0) - (a.created_at || 0));
+              } else if (q.includes('created_at asc')) {
+                results.sort((a: any, b: any) => (a.created_at || 0) - (b.created_at || 0));
+              }
+            }
+
             // offset과 limit을 함께 적용
             results = results.slice(offset, offset + limit);
 
@@ -377,6 +422,14 @@ export function createMockDb(): D1Database {
                   values[col] = params[idx];
                 });
 
+                // auto_increment ID 생성 (posts, comments 테이블용)
+                if ((tableName === 'posts' || tableName === 'comments') && !values.id) {
+                  const maxId = table.length > 0
+                    ? Math.max(...table.map((r: any) => r.id || 0))
+                    : 0;
+                  values.id = maxId + 1;
+                }
+
                 table.push(values);
                 inMemoryStore.set(tableName, table);
               }
@@ -400,7 +453,21 @@ export function createMockDb(): D1Database {
                     let paramIdx = 0;
                     sets.forEach((set: string) => {
                       const col = set.split('=')[0].trim().replace(/["']/g, '');
-                      table[i][col] = params[paramIdx++];
+                      const value = set.split('=')[1]?.trim();
+
+                      // 증가/감소 연산 처리 (view_count + 1, like_count - 1 등)
+                      if (value?.includes('+')) {
+                        const baseCol = value.split('+')[0].trim().replace(/["']/g, '');
+                        const increment = parseInt(value.split('+')[1].trim(), 10);
+                        table[i][col] = (table[i][col] || 0) + increment;
+                      } else if (value?.includes('-')) {
+                        const baseCol = value.split('-')[0].trim().replace(/["']/g, '');
+                        const decrement = parseInt(value.split('-')[1].trim(), 10);
+                        table[i][col] = Math.max(0, (table[i][col] || 0) - decrement);
+                      } else {
+                        // 일반 값 할당
+                        table[i][col] = params[paramIdx++];
+                      }
                     });
                   }
                   break;
@@ -424,6 +491,14 @@ export function createMockDb(): D1Database {
                 const policyId = params[1];
                 table = table.filter((r: any) =>
                   !(r.user_id === userId && r.policy_id === policyId)
+                );
+              }
+              // user_id + post_id 복합 조건 (좋아요)
+              else if (q.includes('user_id') && q.includes('post_id')) {
+                const userId = params[0];
+                const postId = params[1];
+                table = table.filter((r: any) =>
+                  !(r.user_id === userId && r.post_id === postId)
                 );
               }
               // id만 있는 경우

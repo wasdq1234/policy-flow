@@ -21,6 +21,7 @@ export const postListItemSchema = z.object({
   postType: z.enum(POST_TYPES),
   nickname: z.string().nullable(),
   policyId: z.string().nullable(),
+  userId: z.string().nullable(),
   viewCount: z.number().int().nonnegative(),
   likeCount: z.number().int().nonnegative(),
   commentCount: z.number().int().nonnegative(),
@@ -31,11 +32,11 @@ export const postListItemSchema = z.object({
  * POST /api/v1/posts
  */
 export const createPostRequestSchema = z.object({
-  title: z.string().min(1, '제목이 필요합니다').max(50, '제목은 50자 이하여야 합니다'),
+  title: z.string().min(1, '제목이 필요합니다').max(200, '제목은 200자 이하여야 합니다'),
   content: z.string().min(1, '내용이 필요합니다').max(2000, '내용은 2000자 이하여야 합니다'),
-  postType: z.enum(POST_TYPES),
+  type: z.enum(POST_TYPES),
   policyId: z.string().optional(),
-  nickname: z.string().max(20).optional(),
+  authorNickname: z.string().max(20).optional(),
 });
 
 export const createPostResponseSchema = z.object({
@@ -45,6 +46,9 @@ export const createPostResponseSchema = z.object({
   postType: z.enum(POST_TYPES),
   nickname: z.string().nullable(),
   policyId: z.string().nullable(),
+  userId: z.string().nullable(),
+  likeCount: z.number().int().nonnegative(),
+  viewCount: z.number().int().nonnegative(),
   createdAt: z.number().int().positive(),
 });
 
@@ -120,3 +124,13 @@ export const likeCommentResponseSchema = z.object({
   liked: z.boolean(),
   likeCount: z.number().int().nonnegative(),
 });
+
+// TypeScript 타입
+export type GetPostsQuery = z.infer<typeof getPostsQuerySchema>;
+export type PostListItem = z.infer<typeof postListItemSchema>;
+export type CreatePostRequest = z.infer<typeof createPostRequestSchema>;
+export type CreatePostResponse = z.infer<typeof createPostResponseSchema>;
+export type PostDetail = z.infer<typeof postDetailSchema>;
+export type UpdatePostRequest = z.infer<typeof updatePostRequestSchema>;
+export type UpdatePostResponse = z.infer<typeof updatePostResponseSchema>;
+export type LikePostResponse = z.infer<typeof likePostResponseSchema>;

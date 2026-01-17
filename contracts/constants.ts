@@ -48,7 +48,7 @@ export const POLICY_STATUSES = [
 export type PolicyStatus = (typeof POLICY_STATUSES)[number];
 
 // 게시글 유형
-export const POST_TYPES = ['tip', 'question', 'review', 'general'] as const;
+export const POST_TYPES = ['TIP', 'QUESTION', 'REVIEW', 'GENERAL'] as const;
 
 export type PostType = (typeof POST_TYPES)[number];
 
