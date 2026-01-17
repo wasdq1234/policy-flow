@@ -1,11 +1,11 @@
 // contracts/types.ts
 // 공통 타입 정의
 
-import type { PolicyCategory, Region, PostType, AuthProvider } from './constants';
+import type { PolicyCategory, Region, PostType, AuthProvider, AgeGroup } from './constants';
 import type { PolicyStatus } from './constants';
 
 // Re-export for convenience
-export type { PolicyCategory, Region, PolicyStatus, PostType, AuthProvider };
+export type { PolicyCategory, Region, PolicyStatus, PostType, AuthProvider, AgeGroup };
 
 /** Unix timestamp in seconds (DB 저장 형식) */
 export type UnixTimestamp = number;
