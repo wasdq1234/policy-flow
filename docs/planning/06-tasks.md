@@ -587,7 +587,7 @@ cd ../policyflow-phase3-bookmarks
 
 ---
 
-### [ ] Phase 3, T3.4: 알림 발송 Worker RED→GREEN
+### [x] Phase 3, T3.4: 알림 발송 Worker RED→GREEN
 
 **담당**: backend-specialist
 
