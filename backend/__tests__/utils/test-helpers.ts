@@ -4,7 +4,9 @@
  */
 import app from '@/index';
 import type { D1Database } from '@cloudflare/workers-types';
-import { MockD1Database } from './db-mock';
+
+// 인메모리 데이터 저장소
+const inMemoryStore = new Map<string, any[]>();
 
 /**
  * 테스트용 앱 인스턴스 생성
@@ -58,10 +60,169 @@ export function createMockEnv() {
 
 /**
  * Mock D1 Database 생성
- * 실제 D1 API를 모방하는 간단한 mock
+ * 간단한 인메모리 구현
  */
 export function createMockDb(): D1Database {
-  return new MockD1Database() as unknown as D1Database;
+  // 테이블 초기화
+  if (!inMemoryStore.has('users')) {
+    inMemoryStore.set('users', []);
+    inMemoryStore.set('auth_tokens', []);
+    inMemoryStore.set('policies', []);
+    inMemoryStore.set('bookmarks', []);
+    inMemoryStore.set('posts', []);
+    inMemoryStore.set('comments', []);
+  }
+
+  const db: any = {
+    data: inMemoryStore, // 테스트에서 접근 가능하도록
+
+    prepare(query: string) {
+      let params: any[] = [];
+
+      const stmt = {
+        bind(...values: any[]) {
+          params = values;
+          return stmt; // 체이닝을 위해 자기 자신 반환
+        },
+
+        raw() {
+          return stmt; // raw()도 자기 자신 반환
+        },
+
+        async all() {
+          const q = query.toLowerCase();
+
+          if (q.includes('select')) {
+            const match = query.match(/from\s+["']?(\w+)["']?/i);
+            if (!match) return { results: [], success: true };
+
+            const tableName = match[1];
+            let results = [...(inMemoryStore.get(tableName) || [])];
+
+            // WHERE 절 처리
+            if (q.includes('where')) {
+              if (q.includes('id')) {
+                const id = params[params.length - 1];
+                results = results.filter((r: any) => r.id === id);
+              }
+              if (q.includes('provider')) {
+                results = results.filter((r: any) =>
+                  r.provider === params[0] && (r.providerId === params[1] || r.provider_id === params[1])
+                );
+              }
+            }
+
+            // LIMIT 처리
+            if (q.includes('limit')) {
+              const limitMatch = query.match(/limit\s+(\d+)/i);
+              if (limitMatch) {
+                results = results.slice(0, parseInt(limitMatch[1]));
+              }
+            }
+
+            return { results, success: true };
+          }
+
+          return { results: [], success: true };
+        },
+
+        async run() {
+          const q = query.toLowerCase();
+
+          if (q.includes('insert')) {
+            const match = query.match(/insert\s+into\s+["']?(\w+)["']?/i);
+            if (match) {
+              const tableName = match[1];
+              const table = inMemoryStore.get(tableName) || [];
+
+              // 간단한 INSERT 처리 (Drizzle 생성 쿼리 가정)
+              const values: any = {};
+              const columns = query.match(/\(([^)]+)\)/)?.[1].split(',').map(c => c.trim().replace(/["']/g, '')) || [];
+
+              columns.forEach((col, idx) => {
+                values[col] = params[idx];
+              });
+
+              table.push(values);
+              inMemoryStore.set(tableName, table);
+            }
+            return { success: true, meta: {} };
+          }
+
+          if (q.includes('update')) {
+            const match = query.match(/update\s+["']?(\w+)["']?/i);
+            if (match) {
+              const tableName = match[1];
+              const table = inMemoryStore.get(tableName) || [];
+              const id = params[params.length - 1];
+
+              for (let i = 0; i < table.length; i++) {
+                if (table[i].id === id) {
+                  // SET 절 파싱
+                  const setMatch = query.match(/set\s+(.+?)\s+where/i);
+                  if (setMatch) {
+                    const sets = setMatch[1].split(',');
+                    let paramIdx = 0;
+                    sets.forEach((set: string) => {
+                      const col = set.split('=')[0].trim().replace(/["']/g, '');
+                      table[i][col] = params[paramIdx++];
+                    });
+                  }
+                  break;
+                }
+              }
+
+              inMemoryStore.set(tableName, table);
+            }
+            return { success: true, meta: {} };
+          }
+
+          if (q.includes('delete')) {
+            const match = query.match(/delete\s+from\s+["']?(\w+)["']?/i);
+            if (match) {
+              const tableName = match[1];
+              let table = inMemoryStore.get(tableName) || [];
+
+              if (q.includes('id')) {
+                const id = params[0];
+                table = table.filter((r: any) => r.id !== id);
+              }
+
+              inMemoryStore.set(tableName, table);
+            }
+            return { success: true, meta: {} };
+          }
+
+          return { success: true, meta: {} };
+        },
+
+        async first() {
+          const result = await stmt.all();
+          return result.results?.[0] || null;
+        },
+      };
+
+      return stmt;
+    },
+
+    async exec(query: string) {
+      return this.prepare(query).run();
+    },
+
+    async batch(statements: any[]) {
+      const results = [];
+      for (const stmt of statements) {
+        results.push(await stmt.run());
+      }
+      return results;
+    },
+
+    async dump() {
+      return new ArrayBuffer(0);
+    },
+  };
+
+  return db as D1Database;
 }
 
 /**
