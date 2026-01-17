@@ -3,6 +3,7 @@
  * 각 테스트 실행 전/후 환경 구성 및 정리
  */
 import { beforeAll, afterAll, afterEach } from 'vitest';
+import { clearInMemoryStore } from './utils/test-helpers';
 
 /**
  * 모든 테스트 시작 전 실행
@@ -18,7 +19,7 @@ beforeAll(async () => {
  */
 afterEach(async () => {
   // 각 테스트 간 격리를 위한 정리
-  // 예: Mock 초기화, 테스트 데이터 삭제 등
+  clearInMemoryStore();
 });
 
 /**

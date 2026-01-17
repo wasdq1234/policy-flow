@@ -4,6 +4,7 @@
  */
 import { Hono } from 'hono';
 import type { Env } from './types';
+import type { ExecutionContext } from '@cloudflare/workers-types';
 
 // 미들웨어
 import { corsMiddleware } from './middleware/cors';
@@ -12,6 +13,9 @@ import { errorHandler } from './middleware/error-handler';
 
 // 라우트
 import { health, v1 } from './routes';
+
+// Cron
+import { handleScheduled } from './cron/send-notifications';
 
 const app = new Hono<Env>();
 
@@ -52,4 +56,13 @@ app.notFound((c) => {
 // 글로벌 에러 핸들러
 app.onError(errorHandler);
 
-export default app;
+export default {
+  fetch: app.fetch,
+  async scheduled(
+    event: ScheduledEvent,
+    env: Env['Bindings'],
+    ctx: ExecutionContext
+  ): Promise<void> {
+    await handleScheduled(env, ctx);
+  },
+};

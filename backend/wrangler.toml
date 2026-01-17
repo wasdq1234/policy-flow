@@ -12,6 +12,6 @@ database_id = "local"  # 로컬 개발용 (프로덕션 배포 시 실제 ID로 
 [vars]
 ENVIRONMENT = "development"
 
-# Cron Triggers (will be added in T0.6)
-# [triggers]
-# crons = ["0 0 * * *"]  # Daily at midnight
+# Cron Triggers
+[triggers]
+crons = ["0 9 * * *"]  # Daily at 9:00 AM (KST: 18:00 UTC)
