@@ -211,7 +211,7 @@
 
 ## M1: FEAT-0 인증/사용자
 
-### [ ] Phase 1, T1.1: 인증 API (소셜 로그인) RED→GREEN
+### [x] Phase 1, T1.1: 인증 API (소셜 로그인) RED→GREEN
 
 **담당**: backend-specialist
 
@@ -966,7 +966,7 @@ flowchart TD
 - [x] T0.5.3: 프론트엔드 테스트 프레임워크 설정
 
 ### Phase 1+ (Git Worktree)
-- [ ] T1.1: 인증 API RED→GREEN
+- [x] T1.1: 인증 API RED→GREEN
 - [ ] T1.2: 사용자 API RED→GREEN
 - [ ] T1.3: 인증 UI RED→GREEN
 - [ ] T1.4: 프로필 설정 UI RED→GREEN
