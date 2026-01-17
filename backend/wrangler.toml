@@ -2,11 +2,11 @@ name = "policy-flow-backend"
 main = "src/index.ts"
 compatibility_date = "2024-01-17"
 
-# D1 Database Binding (will be created in T0.2)
-# [[d1_databases]]
-# binding = "DB"
-# database_name = "policy-db"
-# database_id = "your-database-id"
+# D1 Database Binding
+[[d1_databases]]
+binding = "DB"
+database_name = "policy-flow-db"
+database_id = "local"  # 로컬 개발용 (프로덕션 배포 시 실제 ID로 교체)
 
 # Environment Variables (use wrangler secret for sensitive values)
 [vars]

@@ -1,11 +1,6 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-
-// Type definition for Cloudflare Workers environment
-type Bindings = {
-  // DB: D1Database; // Will be added in T0.2
-  ENVIRONMENT: string;
-};
+import type { Bindings } from './types';
 
 const app = new Hono<{ Bindings: Bindings }>();
 

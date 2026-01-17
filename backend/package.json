@@ -12,8 +12,9 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "db:generate": "drizzle-kit generate:sqlite",
-    "db:migrate": "wrangler d1 execute policy-db --local --file=./drizzle/migrations/0001_initial.sql",
-    "db:migrate:remote": "wrangler d1 execute policy-db --remote --file=./drizzle/migrations/0001_initial.sql"
+    "db:migrate": "wrangler d1 migrations apply policy-flow-db --local",
+    "db:migrate:remote": "wrangler d1 migrations apply policy-flow-db --remote",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
     "hono": "^4.0.0",
