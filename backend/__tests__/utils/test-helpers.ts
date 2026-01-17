@@ -4,6 +4,7 @@
  */
 import app from '@/index';
 import type { D1Database } from '@cloudflare/workers-types';
+import { MockD1Database } from './db-mock';
 
 /**
  * 테스트용 앱 인스턴스 생성
@@ -48,7 +49,10 @@ export async function testRequest(
 export function createMockEnv() {
   return {
     DB: createMockDb(),
-    // 추가 환경 변수들
+    ENVIRONMENT: 'test',
+    JWT_SECRET: 'test-secret-key-for-jwt',
+    JWT_ACCESS_EXPIRY: '3600',
+    JWT_REFRESH_EXPIRY: '604800',
   };
 }
 
@@ -56,37 +60,8 @@ export function createMockEnv() {
  * Mock D1 Database 생성
  * 실제 D1 API를 모방하는 간단한 mock
  */
-export function createMockDb(): Partial<D1Database> {
-  const mockData: Record<string, any[]> = {
-    users: [],
-    policies: [],
-    bookmarks: [],
-    posts: [],
-    comments: [],
-  };
-
-  return {
-    prepare: (query: string) => {
-      return {
-        bind: (...params: any[]) => {
-          return {
-            all: async () => ({ results: [], success: true, meta: {} }),
-            first: async () => null,
-            run: async () => ({ success: true, meta: {} }),
-          };
-        },
-        all: async () => ({ results: [], success: true, meta: {} }),
-        first: async () => null,
-        run: async () => ({ success: true, meta: {} }),
-      };
-    },
-    batch: async (statements: any[]) => {
-      return statements.map(() => ({ results: [], success: true, meta: {} }));
-    },
-    exec: async (query: string) => {
-      return { count: 0, duration: 0 };
-    },
-  } as Partial<D1Database>;
+export function createMockDb(): D1Database {
+  return new MockD1Database() as unknown as D1Database;
 }
 
 /**

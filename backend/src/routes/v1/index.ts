@@ -4,6 +4,7 @@
  */
 import { Hono } from 'hono';
 import type { Env } from '../../types';
+import authRoutes from './auth';
 
 const v1 = new Hono<Env>();
 
@@ -26,8 +27,10 @@ v1.get('/', (c) => {
   });
 });
 
-// TODO: Phase 1에서 각 기능별 라우트 추가
-// v1.route('/auth', authRoutes);
+// Phase 1: 인증 라우트 마운트
+v1.route('/auth', authRoutes);
+
+// TODO: 추가 라우트
 // v1.route('/policies', policiesRoutes);
 // v1.route('/users', usersRoutes);
 // v1.route('/bookmarks', bookmarksRoutes);
