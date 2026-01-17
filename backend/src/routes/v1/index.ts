@@ -7,6 +7,7 @@ import type { Env } from '../../types';
 import authRoutes from './auth';
 import usersRoutes from './users';
 import policiesRoutes from './policies';
+import bookmarksRoutes from './bookmarks';
 
 const v1 = new Hono<Env>();
 
@@ -36,8 +37,10 @@ v1.route('/users', usersRoutes);
 // Phase 2: 정책 라우트 마운트
 v1.route('/policies', policiesRoutes);
 
+// Phase 3: 북마크 라우트 마운트
+v1.route('/bookmarks', bookmarksRoutes);
+
 // TODO: 추가 라우트
-// v1.route('/bookmarks', bookmarksRoutes);
 // v1.route('/posts', postsRoutes);
 
 export default v1;

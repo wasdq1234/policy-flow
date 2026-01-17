@@ -93,6 +93,58 @@ export function createMockDb(): D1Database {
           const q = query.toLowerCase();
 
           if (q.includes('select')) {
+            // JOIN 처리 (bookmarks + policies)
+            if (q.includes('join')) {
+              const bookmarks = [...(inMemoryStore.get('bookmarks') || [])];
+              const policies = [...(inMemoryStore.get('policies') || [])];
+
+              // user_id 필터링
+              let filteredBookmarks = bookmarks;
+              if (q.includes('where') && q.includes('user_id')) {
+                const userId = params[0];
+                filteredBookmarks = bookmarks.filter((b: any) => b.user_id === userId);
+              }
+
+              // JOIN 수행
+              const joinedResults = filteredBookmarks.map((b: any) => {
+                const policy = policies.find((p: any) => p.id === b.policy_id);
+                if (!policy) return null;
+
+                return {
+                  user_id: b.user_id,
+                  policy_id: b.policy_id,
+                  notify_before_days: b.notify_before_days,
+                  bookmark_created_at: b.created_at,
+                  title: policy.title,
+                  summary: policy.summary,
+                  category: policy.category,
+                  region: policy.region,
+                  start_date: policy.start_date,
+                  end_date: policy.end_date,
+                  is_always_open: policy.is_always_open,
+                };
+              }).filter(Boolean);
+
+              // ORDER BY created_at DESC
+              joinedResults.sort((a: any, b: any) => b.bookmark_created_at - a.bookmark_created_at);
+
+              // LIMIT & OFFSET 처리
+              let offset = 0;
+              let limit = joinedResults.length;
+
+              const limitOffsetParams = params.slice(1); // user_id 다음 파라미터들
+              if (q.includes('limit') && q.includes('offset')) {
+                limit = limitOffsetParams[0] || limit;
+                offset = limitOffsetParams[1] || 0;
+              } else if (q.includes('limit')) {
+                limit = limitOffsetParams[0] || limit;
+              }
+
+              const paginatedResults = joinedResults.slice(offset, offset + limit);
+
+              return { results: paginatedResults, success: true };
+            }
+
             const match = query.match(/from\s+["']?(\w+)["']?/i);
             if (!match) return { results: [], success: true };
 
@@ -104,6 +156,11 @@ export function createMockDb(): D1Database {
               // WHERE 절 먼저 적용
               if (q.includes('where')) {
                 let paramIndex = 0;
+
+                if (q.includes('user_id')) {
+                  const userId = params[paramIndex++];
+                  results = results.filter((r: any) => r.user_id === userId);
+                }
 
                 if (q.includes('region =') || q.includes('region=')) {
                   const region = params[paramIndex++];
@@ -139,15 +196,36 @@ export function createMockDb(): D1Database {
             if (q.includes('where')) {
               let paramIndex = 0;
 
+              // user_id + policy_id 복합 조건 (북마크)
+              if (q.includes('user_id') && q.includes('policy_id')) {
+                const userId = params[paramIndex++];
+                const policyId = params[paramIndex++];
+                whereParamCount += 2;
+                results = results.filter((r: any) =>
+                  r.user_id === userId && r.policy_id === policyId
+                );
+              }
+              // user_id만 있는 경우
+              else if (q.includes('user_id')) {
+                const userId = params[paramIndex++];
+                whereParamCount++;
+                results = results.filter((r: any) => r.user_id === userId);
+              }
+              // policy_id만 있는 경우
+              else if (q.includes('policy_id')) {
+                const policyId = params[paramIndex++];
+                whereParamCount++;
+                results = results.filter((r: any) => r.policy_id === policyId);
+              }
               // id 필터
-              if (q.includes('id =') || q.includes('id=')) {
+              else if (q.includes('id =') || q.includes('id=')) {
                 const id = params[paramIndex++];
                 whereParamCount++;
                 results = results.filter((r: any) => r.id === id);
               }
 
               // provider 필터
-              if (q.includes('provider')) {
+              if (q.includes('provider') && !q.includes('user_id')) {
                 const provider = params[paramIndex++];
                 const providerId = params[paramIndex++];
                 whereParamCount += 2;
@@ -225,14 +303,17 @@ export function createMockDb(): D1Database {
 
               // 간단한 INSERT 처리 (Drizzle 생성 쿼리 가정)
               const values: any = {};
-              const columns = query.match(/\(([^)]+)\)/)?.[1].split(',').map(c => c.trim().replace(/["']/g, '')) || [];
+              const columnsMatch = query.match(/\(([^)]+)\)/);
+              if (columnsMatch) {
+                const columns = columnsMatch[1].split(',').map(c => c.trim().replace(/["']/g, ''));
 
-              columns.forEach((col, idx) => {
-                values[col] = params[idx];
-              });
+                columns.forEach((col, idx) => {
+                  values[col] = params[idx];
+                });
 
-              table.push(values);
-              inMemoryStore.set(tableName, table);
+                table.push(values);
+                inMemoryStore.set(tableName, table);
+              }
             }
             return { success: true, meta: {} };
           }
@@ -271,7 +352,16 @@ export function createMockDb(): D1Database {
               const tableName = match[1];
               let table = inMemoryStore.get(tableName) || [];
 
-              if (q.includes('id')) {
+              // user_id + policy_id 복합 조건 (북마크)
+              if (q.includes('user_id') && q.includes('policy_id')) {
+                const userId = params[0];
+                const policyId = params[1];
+                table = table.filter((r: any) =>
+                  !(r.user_id === userId && r.policy_id === policyId)
+                );
+              }
+              // id만 있는 경우
+              else if (q.includes('id')) {
                 const id = params[0];
                 table = table.filter((r: any) => r.id !== id);
               }
