@@ -607,7 +607,7 @@ cd ../policyflow-phase3-bookmarks
 
 ## M4: FEAT-3 커뮤니티 게시판
 
-### [ ] Phase 4, T4.1: 게시글 API RED→GREEN
+### [x] Phase 4, T4.1: 게시글 API RED→GREEN
 
 **담당**: backend-specialist
 
