@@ -361,7 +361,7 @@ export const authHandlers = [
 
 ---
 
-### [ ] Phase 1, T1.4: 프로필 설정 UI RED→GREEN
+### [x] Phase 1, T1.4: 프로필 설정 UI RED→GREEN
 
 **담당**: frontend-specialist
 
