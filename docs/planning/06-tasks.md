@@ -498,7 +498,7 @@ cd ../policyflow-phase2-detail-fe
 
 ---
 
-### [ ] Phase 2, T2.4: 필터 패널 RED→GREEN
+### [x] Phase 2, T2.4: 필터 패널 RED→GREEN
 
 **담당**: frontend-specialist
 
