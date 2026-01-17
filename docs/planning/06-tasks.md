@@ -635,7 +635,7 @@ cd ../policyflow-phase4-posts
 
 ---
 
-### [ ] Phase 4, T4.2: 댓글 API RED→GREEN
+### [x] Phase 4, T4.2: 댓글 API RED→GREEN
 
 **담당**: backend-specialist
 
