@@ -306,7 +306,7 @@ cd ../policyflow-phase1-users
 
 ---
 
-### [ ] Phase 1, T1.3: 인증 UI (소셜 로그인 화면) RED→GREEN
+### [x] Phase 1, T1.3: 인증 UI (소셜 로그인 화면) RED→GREEN
 
 **담당**: frontend-specialist
 
