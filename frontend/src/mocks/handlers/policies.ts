@@ -1,6 +1,6 @@
 // MSW handlers for policies API endpoints
 import { http, HttpResponse } from 'msw';
-import type { GetPoliciesQuery, PolicyListItem, PolicyDetail } from '@policy-flow/contracts';
+import type { PolicyDetail } from '@policy-flow/contracts';
 import { mockPolicies, mockPolicyDetail } from '../data/policies';
 
 export const policiesHandlers = [

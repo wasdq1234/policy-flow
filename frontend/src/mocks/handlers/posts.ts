@@ -1,15 +1,12 @@
 // MSW handlers for posts API endpoints
 import { http, HttpResponse } from 'msw';
 import type {
-  GetPostsQuery,
-  PostListItem,
   PostDetail,
   CreatePostRequest,
   CreatePostResponse,
   UpdatePostRequest,
   UpdatePostResponse,
   LikePostResponse,
-  CommentItem,
   CreateCommentRequest,
   CreateCommentResponse,
   LikeCommentResponse
