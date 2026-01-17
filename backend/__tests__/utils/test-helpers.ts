@@ -9,6 +9,13 @@ import type { D1Database } from '@cloudflare/workers-types';
 const inMemoryStore = new Map<string, any[]>();
 
 /**
+ * 테스트 데이터 초기화 (각 테스트 간 격리)
+ */
+export function clearInMemoryStore() {
+  inMemoryStore.clear();
+}
+
+/**
  * 테스트용 앱 인스턴스 생성
  */
 export function createTestApp() {
@@ -93,11 +100,44 @@ export function createMockDb(): D1Database {
           const q = query.toLowerCase();
 
           if (q.includes('select')) {
-            // JOIN 처리 (bookmarks + policies)
+            // JOIN 처리
             if (q.includes('join')) {
+              const users = [...(inMemoryStore.get('users') || [])];
               const bookmarks = [...(inMemoryStore.get('bookmarks') || [])];
               const policies = [...(inMemoryStore.get('policies') || [])];
 
+              // 1. users + bookmarks JOIN (notification용)
+              if (q.includes('users') && q.includes('bookmarks')) {
+                let filteredBookmarks = bookmarks;
+
+                // WHERE policy_id = ? 필터링
+                if (q.includes('policy_id')) {
+                  const policyId = params[0];
+                  filteredBookmarks = bookmarks.filter((b: any) => b.policy_id === policyId);
+                }
+
+                // JOIN 수행 (users + bookmarks)
+                const joinedResults = filteredBookmarks
+                  .map((b: any) => {
+                    const user = users.find((u: any) => u.id === b.user_id);
+                    if (!user) return null;
+
+                    // fcm_token IS NOT NULL AND fcm_token != ''
+                    if (!user.fcm_token || user.fcm_token === '') return null;
+
+                    return {
+                      id: user.id,
+                      email: user.email,
+                      nickname: user.nickname,
+                      fcm_token: user.fcm_token,
+                    };
+                  })
+                  .filter(Boolean);
+
+                return { results: joinedResults, success: true };
+              }
+
+              // 2. bookmarks + policies JOIN
               // user_id 필터링
               let filteredBookmarks = bookmarks;
               if (q.includes('where') && q.includes('user_id')) {
@@ -150,6 +190,32 @@ export function createMockDb(): D1Database {
 
             const tableName = match[1];
             let results = [...(inMemoryStore.get(tableName) || [])];
+
+            // policies 테이블의 복잡한 WHERE 절 처리 (notification용 날짜 범위 쿼리)
+            if (tableName === 'policies' && q.includes('where') && q.includes('is_always_open') && q.includes('end_date')) {
+              // is_always_open = 0
+              results = results.filter((r: any) => r.is_always_open === 0);
+
+              // end_date IS NOT NULL
+              results = results.filter((r: any) => r.end_date !== null && r.end_date !== undefined);
+
+              // end_date > ? AND end_date <= ? (날짜 범위)
+              if (q.includes('end_date >') && q.includes('end_date <=')) {
+                const minDate = params[0];
+                const maxDate = params[1];
+                results = results.filter((r: any) => {
+                  const endDate = r.end_date;
+                  return endDate !== null && endDate > minDate && endDate <= maxDate;
+                });
+              }
+
+              // ORDER BY end_date ASC
+              if (q.includes('order by end_date asc')) {
+                results.sort((a: any, b: any) => (a.end_date || 0) - (b.end_date || 0));
+              }
+
+              return { results, success: true };
+            }
 
             // COUNT(*) 특별 처리
             if (q.includes('count(*)')) {
