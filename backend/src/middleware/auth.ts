@@ -8,6 +8,7 @@
 import { createMiddleware } from 'hono/factory';
 import type { Env } from '../types';
 import { UnauthorizedError } from './error-handler';
+import { verifyToken as jwtVerify } from '../utils/jwt';
 
 /**
  * 사용자 정보 타입
@@ -29,17 +30,25 @@ declare module 'hono' {
 }
 
 /**
- * JWT 검증 (향후 구현)
- * 현재는 기본 구조만 제공
+ * JWT 검증
+ * - Access Token 파싱
+ * - 서명 검증
+ * - 만료 시간 확인
+ * - 사용자 정보 추출
  */
-async function verifyToken(_token: string): Promise<AuthUser | null> {
-  // TODO: Phase 1에서 JWT 검증 로직 구현
-  // - Access Token 파싱
-  // - 서명 검증
-  // - 만료 시간 확인
-  // - 사용자 정보 추출
+async function verifyToken(token: string, secret: string): Promise<AuthUser | null> {
+  const payload = jwtVerify(token, secret);
 
-  return null;
+  if (!payload || payload.type !== 'access') {
+    return null;
+  }
+
+  return {
+    id: payload.userId,
+    email: payload.email || '',
+    name: payload.email || 'User',
+    role: 'user',
+  };
 }
 
 /**
@@ -66,7 +75,12 @@ export const requireAuth = createMiddleware<Env>(async (c, next) => {
     throw new UnauthorizedError('인증 토큰이 필요합니다.');
   }
 
-  const user = await verifyToken(token);
+  const jwtSecret = c.env.JWT_SECRET;
+  if (!jwtSecret) {
+    throw new Error('JWT_SECRET not configured');
+  }
+
+  const user = await verifyToken(token, jwtSecret);
 
   if (!user) {
     throw new UnauthorizedError('유효하지 않은 인증 토큰입니다.');
@@ -85,9 +99,12 @@ export const optionalAuth = createMiddleware<Env>(async (c, next) => {
   const token = extractToken(authHeader);
 
   if (token) {
-    const user = await verifyToken(token);
-    if (user) {
-      c.set('user', user);
+    const jwtSecret = c.env.JWT_SECRET;
+    if (jwtSecret) {
+      const user = await verifyToken(token, jwtSecret);
+      if (user) {
+        c.set('user', user);
+      }
     }
   }
 

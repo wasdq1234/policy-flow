@@ -77,6 +77,47 @@ export class MockD1Database implements D1Database {
           };
         }
 
+        if (queryLower.startsWith('update')) {
+          // UPDATE users SET ... WHERE id = ?
+          const match = query.match(/update\s+(\w+)/i);
+          if (match) {
+            const tableName = match[1];
+            const table = self.data.get(tableName) || [];
+
+            // SET 절 파싱 (간단 구현)
+            const setMatch = query.match(/set\s+(.+?)\s+where/i);
+            if (setMatch) {
+              const setClause = setMatch[1];
+              const updates: any = {};
+
+              // 파라미터 바인딩 순서 추적
+              let paramIndex = 0;
+              const setPairs = setClause.split(',').map(p => p.trim());
+              setPairs.forEach(pair => {
+                const [col] = pair.split('=').map(p => p.trim());
+                updates[col] = boundParams[paramIndex++];
+              });
+
+              // WHERE id = ? (마지막 파라미터)
+              const whereId = boundParams[boundParams.length - 1];
+
+              for (let i = 0; i < table.length; i++) {
+                if (table[i].id === whereId) {
+                  table[i] = { ...table[i], ...updates };
+                  break;
+                }
+              }
+
+              self.data.set(tableName, table);
+            }
+          }
+          return {
+            success: true,
+            meta: { rows_written: 1, rows_read: 0, duration: 0 },
+            results: [] as T[],
+          };
+        }
+
         if (queryLower.startsWith('delete')) {
           // DELETE FROM auth_tokens WHERE user_id = ?
           const match = query.match(/delete\s+from\s+(\w+)/i);
@@ -88,6 +129,10 @@ export class MockD1Database implements D1Database {
             if (query.includes('user_id')) {
               const userId = boundParams[0];
               const filtered = table.filter((row: any) => row.user_id !== userId && row.userId !== userId);
+              self.data.set(tableName, filtered);
+            } else if (query.includes('id =')) {
+              const id = boundParams[0];
+              const filtered = table.filter((row: any) => row.id !== id);
               self.data.set(tableName, filtered);
             }
           }
@@ -147,12 +192,21 @@ export class MockD1Database implements D1Database {
               }
             }
 
+            // 배열로 복사 (불변성 보장)
+            const results = Array.isArray(table) ? [...table] : [];
+
             // Drizzle이 기대하는 형식으로 결과 반환
-            const result: D1Result<T> = {
+            const result: any = {
               success: true,
-              meta: { rows_written: 0, rows_read: table.length, duration: 0 },
-              results: Array.isArray(table) ? table : [],
+              meta: { rows_written: 0, rows_read: results.length, duration: 0 },
+              results: results,
             };
+
+            // Drizzle은 때때로 results를 배열로 직접 매핑하려 하므로
+            // results가 map/filter 같은 배열 메서드를 가지도록 보장
+            if (!Array.isArray(result.results)) {
+              result.results = [];
+            }
 
             return result;
           }
