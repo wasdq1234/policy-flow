@@ -43,14 +43,6 @@ export interface User {
   updatedAt: UnixTimestamp;
 }
 
-/** 사용자 설정 */
-export interface UserPreferences {
-  userId: string;
-  categories: PolicyCategory[];
-  regions: Region[];
-  pushEnabled: boolean;
-}
-
 /** 북마크 엔티티 */
 export interface Bookmark {
   id: string;
@@ -83,15 +75,18 @@ export interface Comment {
   updatedAt: UnixTimestamp;
 }
 
+/** 페이지네이션 메타데이터 */
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  hasNext: boolean;
+}
+
 /** API 공통 응답 형식 */
 export interface ApiResponse<T> {
   data: T;
-  meta?: {
-    page?: number;
-    limit?: number;
-    total?: number;
-    hasNext?: boolean;
-  };
+  meta?: PaginationMeta;
 }
 
 /** API 에러 응답 형식 */
@@ -100,7 +95,7 @@ export interface ApiError {
     code: string;
     message: string;
     details?: Array<{
-      field?: string;
+      field: string;
       message: string;
     }>;
   };
