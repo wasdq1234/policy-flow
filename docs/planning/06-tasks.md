@@ -520,7 +520,7 @@ cd ../policyflow-phase2-detail-fe
 
 ## M3: FEAT-2 북마크 & 알림
 
-### [ ] Phase 3, T3.1: 북마크 API RED→GREEN
+### [x] Phase 3, T3.1: 북마크 API RED→GREEN
 
 **담당**: backend-specialist
 
