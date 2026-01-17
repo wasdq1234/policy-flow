@@ -473,7 +473,7 @@ export const policiesHandlers = [
 
 ---
 
-### [ ] Phase 2, T2.3: 정책 상세 모달 RED→GREEN
+### [x] Phase 2, T2.3: 정책 상세 모달 RED→GREEN
 
 **담당**: frontend-specialist
 
