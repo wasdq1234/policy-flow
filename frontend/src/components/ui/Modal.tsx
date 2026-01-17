@@ -9,7 +9,7 @@ export interface ModalProps {
   title?: string;
 }
 
-export default function Modal({ isOpen, onClose, children, title }: ModalProps) {
+export function Modal({ isOpen, onClose, children, title }: ModalProps) {
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -40,6 +40,8 @@ export default function Modal({ isOpen, onClose, children, title }: ModalProps) 
 
       {/* Modal Container */}
       <div
+        role="dialog"
+        aria-modal="true"
         className="relative bg-white rounded-2xl shadow-xl max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
@@ -77,3 +79,5 @@ export default function Modal({ isOpen, onClose, children, title }: ModalProps) 
     </div>
   );
 }
+
+export default Modal;

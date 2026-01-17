@@ -1,5 +1,5 @@
 // 한글 라벨 매핑
-import type { AgeGroup, Region, PolicyCategory } from '@policy-flow/contracts';
+import type { AgeGroup, Region, PolicyCategory, PolicyStatus } from '@policy-flow/contracts';
 
 export const AGE_GROUP_LABELS: Record<AgeGroup, string> = {
   '10s': '10대',
@@ -38,4 +38,11 @@ export const CATEGORY_LABELS: Record<PolicyCategory, string> = {
   EDUCATION: '교육·장학',
   STARTUP: '창업·사업',
   WELFARE: '복지·생활',
+};
+
+export const STATUS_LABELS: Record<PolicyStatus, string> = {
+  OPEN: '접수중',
+  CLOSING_SOON: '마감임박',
+  UPCOMING: '오픈예정',
+  CLOSED: '마감',
 };
