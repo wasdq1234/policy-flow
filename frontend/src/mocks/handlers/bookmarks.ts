@@ -54,7 +54,7 @@ export const bookmarksHandlers = [
   }),
 
   // DELETE /api/v1/bookmarks/:policyId
-  http.delete('/api/v1/bookmarks/:policyId', ({ request, params }) => {
+  http.delete('/api/v1/bookmarks/:policyId', ({ request }) => {
     const authHeader = request.headers.get('Authorization');
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
