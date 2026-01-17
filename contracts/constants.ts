@@ -57,6 +57,11 @@ export const AUTH_PROVIDERS = ['google', 'kakao'] as const;
 
 export type AuthProvider = (typeof AUTH_PROVIDERS)[number];
 
+// 나이대
+export const AGE_GROUPS = ['10s', '20s', '30s', '40s', '50s', '60s_plus'] as const;
+
+export type AgeGroup = (typeof AGE_GROUPS)[number];
+
 // 정책 상태별 표시 정보
 export const POLICY_STATUS_DISPLAY = {
   OPEN: { label: '접수중', color: 'green', bgColor: 'bg-green-100' },

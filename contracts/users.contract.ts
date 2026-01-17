@@ -1,7 +1,7 @@
 // contracts/users.contract.ts
 // 사용자 API 계약 정의
 
-import type { PolicyCategory, Region, UnixTimestamp } from './types';
+import type { PolicyCategory, Region, UnixTimestamp, AgeGroup } from './types';
 
 /**
  * 사용자 설정 타입
@@ -31,10 +31,9 @@ export interface UserProfile {
  * 사용자 설정 저장
  */
 export interface UpdatePreferencesRequest {
-  regions?: Region[];
-  categories?: PolicyCategory[];
-  ageRange?: { min: number; max: number } | null;
-  notifyBeforeDays?: number[];
+  ageGroup?: AgeGroup;
+  region?: Region;
+  interests?: PolicyCategory[];
 }
 
 export interface UpdatePreferencesResponse {
