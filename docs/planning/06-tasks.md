@@ -567,7 +567,7 @@ cd ../policyflow-phase3-bookmarks
 
 ---
 
-### [ ] Phase 3, T3.3: 푸시 알림 설정 RED→GREEN
+### [x] Phase 3, T3.3: 푸시 알림 설정 RED→GREEN
 
 **담당**: frontend-specialist
 
