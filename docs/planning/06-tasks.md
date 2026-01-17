@@ -545,7 +545,7 @@ cd ../policyflow-phase3-bookmarks
 
 ---
 
-### [ ] Phase 3, T3.2: 북마크 UI RED→GREEN
+### [x] Phase 3, T3.2: 북마크 UI RED→GREEN
 
 **담당**: frontend-specialist
 
