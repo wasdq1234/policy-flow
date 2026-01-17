@@ -38,7 +38,7 @@
 
 ## M0: 프로젝트 셋업
 
-### [ ] Phase 0, T0.1: 프로젝트 초기화 및 모노레포 구조 생성
+### [x] Phase 0, T0.1: 프로젝트 초기화 및 모노레포 구조 생성
 
 **담당**: frontend-specialist
 
@@ -64,7 +64,7 @@
 
 ---
 
-### [ ] Phase 0, T0.2: Cloudflare D1 데이터베이스 설정
+### [x] Phase 0, T0.2: Cloudflare D1 데이터베이스 설정
 
 **담당**: database-specialist
 
@@ -87,7 +87,7 @@
 
 ---
 
-### [ ] Phase 0, T0.3: 프론트엔드 기본 레이아웃 및 라우팅
+### [x] Phase 0, T0.3: 프론트엔드 기본 레이아웃 및 라우팅
 
 **담당**: frontend-specialist
 
@@ -112,7 +112,7 @@
 
 ---
 
-### [ ] Phase 0, T0.4: 백엔드 Hono 기본 구조 및 미들웨어
+### [x] Phase 0, T0.4: 백엔드 Hono 기본 구조 및 미들웨어
 
 **담당**: backend-specialist
 
@@ -137,7 +137,7 @@
 
 ## M0.5: 계약 & 테스트 스켈레톤
 
-### [ ] Phase 0, T0.5.1: API 계약 정의 (Contracts)
+### [x] Phase 0, T0.5.1: API 계약 정의 (Contracts)
 
 **담당**: backend-specialist
 
@@ -162,7 +162,7 @@
 
 ---
 
-### [ ] Phase 0, T0.5.2: 백엔드 테스트 프레임워크 설정
+### [x] Phase 0, T0.5.2: 백엔드 테스트 프레임워크 설정
 
 **담당**: test-specialist
 
@@ -185,7 +185,7 @@
 
 ---
 
-### [ ] Phase 0, T0.5.3: 프론트엔드 테스트 프레임워크 설정
+### [x] Phase 0, T0.5.3: 프론트엔드 테스트 프레임워크 설정
 
 **담당**: test-specialist
 
