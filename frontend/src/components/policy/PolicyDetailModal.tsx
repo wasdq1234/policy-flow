@@ -2,6 +2,8 @@
 
 import { Modal } from '@/src/components/ui/Modal';
 import { usePolicyDetail } from '@/src/hooks/usePolicyDetail';
+import { useBookmarks } from '@/src/hooks/useBookmarks';
+import { BookmarkButton } from '@/src/components/bookmark/BookmarkButton';
 import { CATEGORY_LABELS, REGION_LABELS, STATUS_LABELS } from '@/src/constants/labels';
 import { POLICY_STATUS_DISPLAY } from '@policy-flow/contracts';
 
@@ -12,6 +14,7 @@ interface PolicyDetailModalProps {
 
 export function PolicyDetailModal({ policyId, onClose }: PolicyDetailModalProps) {
   const { policy, isLoading, error } = usePolicyDetail(policyId);
+  const { toggleBookmark } = useBookmarks();
 
   const formatDate = (timestamp: number | null): string => {
     if (!timestamp) return '';
@@ -123,16 +126,7 @@ export function PolicyDetailModal({ policyId, onClose }: PolicyDetailModalProps)
                 신청하기
               </a>
             )}
-            <button
-              type="button"
-              onClick={() => {
-                // Phase 3에서 구현 예정
-                console.log('북마크 기능은 Phase 3에서 구현됩니다.');
-              }}
-              className="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              북마크
-            </button>
+            <BookmarkButton policyId={policyId} onToggle={toggleBookmark} />
           </div>
         </div>
       ) : null}

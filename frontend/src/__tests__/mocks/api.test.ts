@@ -117,12 +117,12 @@ describe('MSW API Mocking', () => {
           'Content-Type': 'application/json',
           Authorization: 'Bearer mock-access-token',
         },
-        body: JSON.stringify({ policyId: 'policy-1', notifyBeforeDays: 5 }),
+        body: JSON.stringify({ policyId: 'policy-2', notifyBeforeDays: 5 }),
       });
 
       expect(response.status).toBe(201);
       const data = await response.json();
-      expect(data.data.policyId).toBe('policy-1');
+      expect(data.data.policyId).toBe('policy-2');
       expect(data.data.notifyBeforeDays).toBe(5);
     });
 
