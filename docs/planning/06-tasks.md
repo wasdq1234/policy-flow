@@ -430,7 +430,7 @@ cd ../policyflow-phase2-policies
 
 ---
 
-### [ ] Phase 2, T2.2: 캘린더 뷰 컴포넌트 RED→GREEN
+### [x] Phase 2, T2.2: 캘린더 뷰 컴포넌트 RED→GREEN
 
 **담당**: frontend-specialist
 
