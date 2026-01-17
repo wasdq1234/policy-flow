@@ -99,26 +99,114 @@ export function createMockDb(): D1Database {
             const tableName = match[1];
             let results = [...(inMemoryStore.get(tableName) || [])];
 
-            // WHERE 절 처리
+            // COUNT(*) 특별 처리
+            if (q.includes('count(*)')) {
+              // WHERE 절 먼저 적용
+              if (q.includes('where')) {
+                let paramIndex = 0;
+
+                if (q.includes('region =') || q.includes('region=')) {
+                  const region = params[paramIndex++];
+                  results = results.filter((r: any) => r.region === region);
+                }
+
+                if (q.includes('category =') || q.includes('category=')) {
+                  const category = params[paramIndex++];
+                  results = results.filter((r: any) => r.category === category);
+                }
+
+                if (q.includes('like')) {
+                  const likePatterns = params.filter((p: any) => typeof p === 'string' && p.includes('%'));
+                  likePatterns.forEach((pattern: string) => {
+                    const searchTerm = pattern.replace(/%/g, '').toLowerCase();
+                    results = results.filter((r: any) => {
+                      const title = (r.title || '').toLowerCase();
+                      const summary = (r.summary || '').toLowerCase();
+                      return title.includes(searchTerm) || summary.includes(searchTerm);
+                    });
+                  });
+                }
+              }
+
+              // COUNT 결과 반환
+              return { results: [{ count: results.length }], success: true };
+            }
+
+            // WHERE 절에 사용된 파라미터 수를 계산
+            let whereParamCount = 0;
+
+            // WHERE 절 처리 (간단한 파서)
             if (q.includes('where')) {
-              if (q.includes('id')) {
-                const id = params[params.length - 1];
+              let paramIndex = 0;
+
+              // id 필터
+              if (q.includes('id =') || q.includes('id=')) {
+                const id = params[paramIndex++];
+                whereParamCount++;
                 results = results.filter((r: any) => r.id === id);
               }
+
+              // provider 필터
               if (q.includes('provider')) {
+                const provider = params[paramIndex++];
+                const providerId = params[paramIndex++];
+                whereParamCount += 2;
                 results = results.filter((r: any) =>
-                  r.provider === params[0] && (r.providerId === params[1] || r.provider_id === params[1])
+                  r.provider === provider && (r.providerId === providerId || r.provider_id === providerId)
                 );
+              }
+
+              // region 필터
+              if (q.includes('region =') || q.includes('region=')) {
+                const region = params[paramIndex++];
+                whereParamCount++;
+                results = results.filter((r: any) => r.region === region);
+              }
+
+              // category 필터
+              if (q.includes('category =') || q.includes('category=')) {
+                const category = params[paramIndex++];
+                whereParamCount++;
+                results = results.filter((r: any) => r.category === category);
+              }
+
+              // LIKE 필터 (search)
+              if (q.includes('like')) {
+                // WHERE 절에 있는 LIKE 패턴만 카운트
+                const likeCount = (query.match(/\?/g) || []).length - whereParamCount;
+                const likePatterns = params.slice(paramIndex, paramIndex + likeCount).filter((p: any) => typeof p === 'string' && p.includes('%'));
+                whereParamCount += likePatterns.length;
+
+                likePatterns.forEach((pattern: string) => {
+                  const searchTerm = pattern.replace(/%/g, '').toLowerCase();
+                  results = results.filter((r: any) => {
+                    const title = (r.title || '').toLowerCase();
+                    const summary = (r.summary || '').toLowerCase();
+                    return title.includes(searchTerm) || summary.includes(searchTerm);
+                  });
+                });
               }
             }
 
-            // LIMIT 처리
-            if (q.includes('limit')) {
-              const limitMatch = query.match(/limit\s+(\d+)/i);
-              if (limitMatch) {
-                results = results.slice(0, parseInt(limitMatch[1]));
-              }
+            // LIMIT & OFFSET 처리 (WHERE 절 이후의 파라미터 사용)
+            let offset = 0;
+            let limit = results.length;
+
+            // params 배열에서 LIMIT과 OFFSET 값 추출
+            const limitOffsetParams = params.slice(whereParamCount);
+
+            if (q.includes('limit') && q.includes('offset')) {
+              // LIMIT ? OFFSET ? 순서
+              limit = limitOffsetParams[0] || limit;
+              offset = limitOffsetParams[1] || 0;
+            } else if (q.includes('limit')) {
+              limit = limitOffsetParams[0] || limit;
+            } else if (q.includes('offset')) {
+              offset = limitOffsetParams[0] || 0;
             }
+
+            // offset과 limit을 함께 적용
+            results = results.slice(offset, offset + limit);
 
             return { results, success: true };
           }
@@ -199,6 +287,13 @@ export function createMockDb(): D1Database {
         async first() {
           const result = await stmt.all();
           return result.results?.[0] || null;
+        },
+
+        async execute() {
+          // Drizzle ORM의 execute() 메서드 지원
+          const result = await stmt.all();
+          // Drizzle은 results 배열을 직접 반환합니다
+          return result.results || [];
         },
       };
 
