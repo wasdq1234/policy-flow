@@ -267,7 +267,7 @@ cd ../policyflow-phase1-auth
 
 ---
 
-### [ ] Phase 1, T1.2: 사용자 API (프로필/설정) RED→GREEN
+### [x] Phase 1, T1.2: 사용자 API (프로필/설정) RED→GREEN
 
 **담당**: backend-specialist
 
