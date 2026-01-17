@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import Header from '@/src/components/layout/Header';
+import TabBar from '@/src/components/layout/TabBar';
+import Footer from '@/src/components/layout/Footer';
 
 export const metadata: Metadata = {
   title: 'PolicyFlow KR - 정책 캘린더',
@@ -13,7 +16,20 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko">
-      <body>{children}</body>
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"
+        />
+      </head>
+      <body className="font-sans bg-gray-50">
+        <Header />
+        <div className="min-h-screen pb-16 md:pb-0">
+          {children}
+        </div>
+        <TabBar />
+        <Footer />
+      </body>
     </html>
   );
 }
