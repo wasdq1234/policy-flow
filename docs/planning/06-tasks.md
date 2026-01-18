@@ -718,7 +718,7 @@ cd ../policyflow-phase4-posts
 
 ## M5: 데이터 수집 파이프라인
 
-### [ ] Phase 5, T5.1: 청년센터 API 연동 RED→GREEN
+### [x] Phase 5, T5.1: 청년센터 API 연동 RED→GREEN
 
 **담당**: backend-specialist
 
