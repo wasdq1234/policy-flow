@@ -759,7 +759,7 @@ cd ../policyflow-phase5-ingestion
 
 ---
 
-### [ ] Phase 5, T5.3: Health Check Worker
+### [x] Phase 5, T5.3: Health Check Worker
 
 **담당**: backend-specialist
 
