@@ -15,7 +15,10 @@
     "lint": "npm run lint -w frontend && npm run lint -w backend",
     "type-check": "npm run type-check -w contracts && npm run type-check -w frontend && npm run type-check -w backend",
     "test": "npm run test -w frontend && npm run test -w backend",
-    "clean": "rm -rf node_modules frontend/node_modules backend/node_modules contracts/node_modules"
+    "clean": "rm -rf node_modules frontend/node_modules backend/node_modules contracts/node_modules",
+    "deploy:backend": "npm run deploy -w backend",
+    "deploy:frontend": "npm run build -w frontend && wrangler pages deploy frontend/out --project-name=policy-flow",
+    "migrate:prod": "wrangler d1 migrations apply policy-flow-db-prod --env production"
   },
   "engines": {
     "node": ">=18.0.0",
