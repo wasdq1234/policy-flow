@@ -7,6 +7,15 @@ import { PostTypeTag } from '@/src/components/post/PostTypeTag';
 import { CommentList } from '@/src/components/comment/CommentList';
 import type { PostDetail } from '@policy-flow/contracts';
 
+// Static Export를 위한 generateStaticParams
+export async function generateStaticParams() {
+  // 개발 환경에서는 빈 배열 반환 (동적으로 처리)
+  return [];
+}
+
+// 동적 라우트 파라미터 허용
+export const dynamicParams = true;
+
 export default function PostDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const { accessToken } = useAuthStore();
