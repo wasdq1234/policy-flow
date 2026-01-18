@@ -30,6 +30,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, '.'),
+      '@/src': path.resolve(__dirname, './src'),
       '@policy-flow/contracts': path.resolve(__dirname, '../contracts'),
     },
   },
