@@ -776,7 +776,7 @@ cd ../policyflow-phase5-ingestion
 
 ## M6: 통합 및 배포
 
-### [ ] Phase 6, T6.1: E2E 테스트 작성
+### [x] Phase 6, T6.1: E2E 테스트 작성
 
 **담당**: test-specialist
 
@@ -800,7 +800,7 @@ cd ../policyflow-phase6-e2e
 
 ---
 
-### [ ] Phase 6, T6.2: 프로덕션 배포 설정
+### [x] Phase 6, T6.2: 프로덕션 배포 설정
 
 **담당**: frontend-specialist
 
@@ -818,7 +818,7 @@ cd ../policyflow-phase6-e2e
 
 ---
 
-### [ ] Phase 6, T6.3: SEO 및 메타 태그 최적화
+### [x] Phase 6, T6.3: SEO 및 메타 태그 최적화
 
 **담당**: frontend-specialist
 
