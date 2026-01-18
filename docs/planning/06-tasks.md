@@ -678,7 +678,7 @@ cd ../policyflow-phase4-posts
 
 ---
 
-### [ ] Phase 4, T4.4: 게시글 작성 폼 RED→GREEN
+### [x] Phase 4, T4.4: 게시글 작성 폼 RED→GREEN
 
 **담당**: frontend-specialist
 
