@@ -697,7 +697,7 @@ cd ../policyflow-phase4-posts
 
 ---
 
-### [ ] Phase 4, T4.5: 댓글 컴포넌트 RED→GREEN
+### [x] Phase 4, T4.5: 댓글 컴포넌트 RED→GREEN
 
 **담당**: frontend-specialist
 
