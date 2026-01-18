@@ -59,9 +59,12 @@ export const postsHandlers = [
       id: mockPosts.length + 1,
       title: body.title,
       content: body.content,
-      postType: body.postType,
-      nickname: body.nickname || null,
+      postType: body.type,
+      nickname: body.authorNickname || null,
       policyId: body.policyId || null,
+      userId: 'user-1',
+      likeCount: 0,
+      viewCount: 0,
       createdAt: Math.floor(Date.now() / 1000),
     };
 
