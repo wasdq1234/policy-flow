@@ -17,6 +17,7 @@ import { health, v1 } from './routes';
 // Cron
 import { handleScheduled as handleNotificationCron } from './cron/send-notifications';
 import { syncYouthCenterPolicies } from './cron/sync-youth-center';
+import { runHealthCheck } from './cron/health-check';
 
 const app = new Hono<Env>();
 
@@ -84,6 +85,20 @@ export default {
       } catch (error) {
         console.error('[Cron] Sync job failed:', error);
       }
+    }
+
+    // 매 시간 정각 - Health Check
+    console.log('[Cron] Running health check...');
+    try {
+      const healthResult = await runHealthCheck({
+        DB: env.DB,
+        YOUTH_CENTER_API_KEY: env.YOUTH_CENTER_API_KEY,
+        HEALTH_CHECK_WEBHOOK_URL: env.HEALTH_CHECK_WEBHOOK_URL,
+        HEALTH_CHECK_FAILURE_THRESHOLD: env.HEALTH_CHECK_FAILURE_THRESHOLD,
+      });
+      console.log(`[Cron] Health check completed: ${healthResult.isHealthy ? 'Healthy' : 'Unhealthy'}, failures: ${healthResult.consecutiveFailures}`);
+    } catch (error) {
+      console.error('[Cron] Health check failed:', error);
     }
   },
 };
