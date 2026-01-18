@@ -655,7 +655,7 @@ cd ../policyflow-phase4-posts
 
 ---
 
-### [ ] Phase 4, T4.3: 게시판 UI (목록/상세) RED→GREEN
+### [x] Phase 4, T4.3: 게시판 UI (목록/상세) RED→GREEN
 
 **담당**: frontend-specialist
 
