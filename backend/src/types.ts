@@ -7,6 +7,7 @@ export type Bindings = {
   JWT_SECRET?: string;
   JWT_ACCESS_EXPIRY?: string;
   JWT_REFRESH_EXPIRY?: string;
+  YOUTH_CENTER_API_KEY?: string;
 };
 
 /**

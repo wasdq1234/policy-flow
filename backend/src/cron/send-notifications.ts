@@ -3,15 +3,15 @@
  * 매일 오전 9시 실행
  */
 import type { ExecutionContext } from '@cloudflare/workers-types';
-import type { Env } from '../types/env';
+import type { Bindings } from '../types';
 import { sendClosingSoonNotifications } from '../services/notification.service';
 
 /**
  * Cron Trigger 핸들러
  */
 export async function handleScheduled(
-  env: Env,
-  ctx: ExecutionContext
+  env: Bindings,
+  _ctx: ExecutionContext
 ): Promise<void> {
   console.log('[Cron] Starting scheduled notification job...');
 

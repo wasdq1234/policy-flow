@@ -14,4 +14,7 @@ ENVIRONMENT = "development"
 
 # Cron Triggers
 [triggers]
-crons = ["0 9 * * *"]  # Daily at 9:00 AM (KST: 18:00 UTC)
+crons = [
+  "0 0 * * *",    # Daily at 9:00 AM KST (UTC 0:00) - Send closing soon notifications
+  "0 */6 * * *",  # Every 6 hours - Sync youth center policies
+]
