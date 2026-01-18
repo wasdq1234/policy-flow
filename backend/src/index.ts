@@ -15,7 +15,8 @@ import { errorHandler } from './middleware/error-handler';
 import { health, v1 } from './routes';
 
 // Cron
-import { handleScheduled } from './cron/send-notifications';
+import { handleScheduled as handleNotificationCron } from './cron/send-notifications';
+import { syncYouthCenterPolicies } from './cron/sync-youth-center';
 
 const app = new Hono<Env>();
 
@@ -63,6 +64,26 @@ export default {
     env: Env['Bindings'],
     ctx: ExecutionContext
   ): Promise<void> {
-    await handleScheduled(env, ctx);
+    const scheduledTime = new Date(event.scheduledTime);
+    const hour = scheduledTime.getUTCHours();
+
+    console.log(`[Cron] Scheduled event triggered at ${scheduledTime.toISOString()} (UTC hour: ${hour})`);
+
+    // 매일 오전 9시 KST (UTC 0시) - 마감 임박 알림 발송
+    if (hour === 0) {
+      console.log('[Cron] Running notification job...');
+      await handleNotificationCron(env, ctx);
+    }
+
+    // 6시간마다 - 청년센터 API 데이터 동기화
+    if (hour % 6 === 0) {
+      console.log('[Cron] Running youth center sync job...');
+      try {
+        const result = await syncYouthCenterPolicies({ DB: env.DB, YOUTH_CENTER_API_KEY: env.YOUTH_CENTER_API_KEY });
+        console.log(`[Cron] Sync completed: ${result.inserted} inserted, ${result.updated} updated, ${result.errors} errors`);
+      } catch (error) {
+        console.error('[Cron] Sync job failed:', error);
+      }
+    }
   },
 };

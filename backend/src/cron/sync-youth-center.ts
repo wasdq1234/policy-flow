@@ -111,8 +111,7 @@ export async function syncYouthCenterPolicies(
             // UPDATE (Raw SQL)
             const startDate = policy.startDate ? Math.floor(policy.startDate.getTime() / 1000) : null;
             const endDate = policy.endDate ? Math.floor(policy.endDate.getTime() / 1000) : null;
-            const createdAt = Math.floor(policy.createdAt.getTime() / 1000);
-            const updatedAt = Math.floor(policy.updatedAt.getTime() / 1000);
+            const updatedAt = policy.updatedAt ? Math.floor(policy.updatedAt.getTime() / 1000) : Math.floor(Date.now() / 1000);
 
             await db
               .prepare(`
@@ -149,8 +148,9 @@ export async function syncYouthCenterPolicies(
             // INSERT (Raw SQL)
             const startDate = policy.startDate ? Math.floor(policy.startDate.getTime() / 1000) : null;
             const endDate = policy.endDate ? Math.floor(policy.endDate.getTime() / 1000) : null;
-            const createdAt = Math.floor(policy.createdAt.getTime() / 1000);
-            const updatedAt = Math.floor(policy.updatedAt.getTime() / 1000);
+            const now = Math.floor(Date.now() / 1000);
+            const createdAt = policy.createdAt ? Math.floor(policy.createdAt.getTime() / 1000) : now;
+            const updatedAt = policy.updatedAt ? Math.floor(policy.updatedAt.getTime() / 1000) : now;
 
             await db
               .prepare(`
