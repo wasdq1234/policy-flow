@@ -744,7 +744,7 @@ cd ../policyflow-phase5-ingestion
 
 ---
 
-### [ ] Phase 5, T5.2: Cron Trigger 설정
+### [x] Phase 5, T5.2: Cron Trigger 설정
 
 **담당**: backend-specialist
 
