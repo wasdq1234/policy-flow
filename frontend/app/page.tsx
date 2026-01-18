@@ -1,3 +1,14 @@
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: '정책 캘린더',
+  description: '나에게 맞는 정책을 한눈에 확인하세요. 청년 월세 지원, 소상공인 지원금 등 다양한 정책 정보를 제공합니다.',
+  openGraph: {
+    title: '정책 캘린더 | 정책플로우',
+    description: '나에게 맞는 정책을 한눈에 확인하세요',
+  },
+};
+
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-8 pb-24 md:pb-8">
