@@ -25,7 +25,7 @@
 - **Hosting**: Cloudflare Pages (Frontend), Cloudflare Workers (Backend)
 - **Database**: Cloudflare D1
 - **Push Notifications**: Firebase Cloud Messaging
-- **CI/CD**: GitHub Actions (예정)
+- **CI/CD**: GitHub Actions
 
 ## 프로젝트 구조
 
@@ -116,19 +116,25 @@ npm run test
 
 ## 배포
 
-### 프론트엔드 (Cloudflare Pages)
+자세한 배포 가이드는 [DEPLOYMENT.md](./DEPLOYMENT.md)를 참조하세요.
 
+### Quick Deploy
+
+#### GitHub Actions (권장)
 ```bash
-cd frontend
-npm run build
-npx wrangler pages deploy out --project-name=policyflow
+git push origin main
 ```
 
-### 백엔드 (Cloudflare Workers)
-
+#### Manual Deploy
 ```bash
-cd backend
-npx wrangler deploy
+# Backend
+npm run deploy:backend
+
+# Frontend
+npm run deploy:frontend
+
+# Database Migration (프로덕션)
+npm run migrate:prod
 ```
 
 ## 문서
