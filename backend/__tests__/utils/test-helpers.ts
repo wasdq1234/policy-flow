@@ -193,6 +193,7 @@ export function createMockDb(): D1Database {
             const tableName = match[1];
             let results = [...(inMemoryStore.get(tableName) || [])];
 
+
             // policies 테이블의 복잡한 WHERE 절 처리 (notification용 날짜 범위 쿼리)
             if (tableName === 'policies' && q.includes('where') && q.includes('is_always_open') && q.includes('end_date')) {
               // is_always_open = 0
@@ -274,8 +275,15 @@ export function createMockDb(): D1Database {
             if (q.includes('where')) {
               let paramIndex = 0;
 
+              // policies 테이블에서 id 단일 조건 (Raw SQL의 "policies WHERE id = ?" 형식)
+              // 이 조건을 가장 먼저 체크하여 다른 조건과 충돌 방지
+              if (tableName === 'policies' && q.includes('where id = ?') && !q.includes('user_id') && !q.includes('policy_id')) {
+                const id = params[paramIndex++];
+                whereParamCount++;
+                results = results.filter((r: any) => r.id === id);
+              }
               // user_id + policy_id 복합 조건 (북마크) - 정확한 매칭
-              if (tableName === 'bookmarks' && q.includes('user_id') && q.includes('policy_id')) {
+              else if (tableName === 'bookmarks' && q.includes('user_id') && q.includes('policy_id')) {
                 const userId = params[paramIndex++];
                 const policyId = params[paramIndex++];
                 whereParamCount += 2;
@@ -342,7 +350,8 @@ export function createMockDb(): D1Database {
                 results = results.filter((r: any) => r.id === id);
               }
               // id 필터 (일반적인 경우, comments 외)
-              else if (tableName !== 'comments' && (q.includes('id =') || q.includes('id=')) && !q.includes('user_id') && !q.includes('post_id') && !q.includes('policy_id')) {
+              // "policies"."id" = ? 형식도 지원
+              else if (tableName !== 'comments' && (q.includes('id =') || q.includes('id=') || q.includes('"id" =')) && !q.includes('user_id') && !q.includes('post_id') && !q.includes('policy_id')) {
                 const id = params[paramIndex++];
                 whereParamCount++;
                 results = results.filter((r: any) => r.id === id);
@@ -409,6 +418,7 @@ export function createMockDb(): D1Database {
             // params 배열에서 LIMIT과 OFFSET 값 추출
             const limitOffsetParams = params.slice(whereParamCount);
 
+
             if (q.includes('limit') && q.includes('offset')) {
               // LIMIT ? OFFSET ? 순서
               limit = limitOffsetParams[0] || limit;
@@ -418,6 +428,7 @@ export function createMockDb(): D1Database {
             } else if (q.includes('offset')) {
               offset = limitOffsetParams[0] || 0;
             }
+
 
             // ORDER BY 처리
             if (q.includes('order by')) {
@@ -566,6 +577,12 @@ export function createMockDb(): D1Database {
         },
 
         async first() {
+          const result = await stmt.all();
+          return result.results?.[0] || null;
+        },
+
+        async get() {
+          // Drizzle ORM의 get() 메서드 지원 (single row)
           const result = await stmt.all();
           return result.results?.[0] || null;
         },
