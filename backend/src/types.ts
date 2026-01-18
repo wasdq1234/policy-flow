@@ -8,6 +8,8 @@ export type Bindings = {
   JWT_ACCESS_EXPIRY?: string;
   JWT_REFRESH_EXPIRY?: string;
   YOUTH_CENTER_API_KEY?: string;
+  HEALTH_CHECK_WEBHOOK_URL?: string;
+  HEALTH_CHECK_FAILURE_THRESHOLD?: number;
 };
 
 /**

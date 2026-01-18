@@ -11,10 +11,16 @@ database_id = "local"  # 로컬 개발용 (프로덕션 배포 시 실제 ID로 
 # Environment Variables (use wrangler secret for sensitive values)
 [vars]
 ENVIRONMENT = "development"
+HEALTH_CHECK_FAILURE_THRESHOLD = 3
+
+# Secrets (use `wrangler secret put <KEY>` to set):
+# - YOUTH_CENTER_API_KEY
+# - HEALTH_CHECK_WEBHOOK_URL (optional)
 
 # Cron Triggers
 [triggers]
 crons = [
   "0 0 * * *",    # Daily at 9:00 AM KST (UTC 0:00) - Send closing soon notifications
   "0 */6 * * *",  # Every 6 hours - Sync youth center policies
+  "0 * * * *",    # Every hour - Health check
 ]
